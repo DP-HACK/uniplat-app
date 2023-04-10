@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:gradient_like_css/gradient_like_css.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,6 +26,8 @@ class LoginView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+
     return Stack(
       children: [
         Scaffold(
@@ -61,103 +64,118 @@ class LoginView extends HookConsumerWidget {
                     ),
                     child: Container(
                       margin: EdgeInsets.fromLTRB(35, 50, 35, 35),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            alignment: Alignment.bottomLeft,
-                            child: const Text(
-                              "Sign in to UNIPLAT",
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 36,
-                          ),
-                          formBox(
-                              "Email",
-                              "Your email",
-                              "assets/images/icon-email.png",
-                              emailTextController),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          formBox(
-                              "Password",
-                              "Your password",
-                              "assets/images/icon-password.png",
-                              passwordTextController,
-                              obscure: true),
-                          const SizedBox(
-                            height: 28,
-                          ),
-                          Container(
-                            width: double.infinity,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              gradient: linearGradient(90.95, [
-                                '#4386C7 0.19%',
-                                '#DB5C6C 49.57%',
-                                '#F4BD1C 100%'
-                              ]),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromRGBO(66, 136, 198, 0.15),
-                                  spreadRadius: 2,
-                                  blurRadius: 2,
-                                  offset: Offset(1, 1),
-                                ),
-                              ],
-                            ),
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  elevation: 0,
-                                ),
-                                onPressed: () async {
-                                  if (emailTextController.text != "" &&
-                                      passwordTextController.text != "") {
-                                    await login(
-                                        context,
-                                        ref,
-                                        emailTextController.text,
-                                        passwordTextController.text);
-                                  } else {
-                                    AwesomeDialog(
-                                      context: context,
-                                      dialogType: DialogType.warning,
-                                      animType: AnimType.rightSlide,
-                                      headerAnimationLoop: false,
-                                      title: 'Error',
-                                      desc: 'Dialog description',
-                                      btnOkOnPress: () {},
-                                      btnOkIcon: Icons.cancel,
-                                      btnOkColor: Colors.orange,
-                                    )..show();
-                                  }
-                                },
+                      child: SingleChildScrollView(
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                alignment: Alignment.bottomLeft,
                                 child: const Text(
-                                  "Log In",
+                                  "Sign in to UNIPLAT",
                                   style: TextStyle(
                                       fontSize: 20,
-                                      fontWeight: FontWeight.w700),
-                                )),
-                          ),
-                          SizedBox(
-                            height: 24,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Don't have an account?",
-                                style: TextStyle(fontWeight: FontWeight.w500),
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 36,
+                              ),
+                              formBox(
+                                  "Email",
+                                  "Your email",
+                                  "assets/images/icon-email.png",
+                                  emailTextController),
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              formBox(
+                                  "Password",
+                                  "Your password",
+                                  "assets/images/icon-password.png",
+                                  passwordTextController,
+                                  obscure: true),
+                              const SizedBox(
+                                height: 28,
+                              ),
+                              Container(
+                                width: double.infinity,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  gradient: linearGradient(90.95, [
+                                    '#4386C7 0.19%',
+                                    '#DB5C6C 49.57%',
+                                    '#F4BD1C 100%'
+                                  ]),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(66, 136, 198, 0.15),
+                                      spreadRadius: 2,
+                                      blurRadius: 2,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      elevation: 0,
+                                    ),
+                                    onPressed: () async {
+                                      if (formKey.currentState!.validate()) {
+                                        final email = emailTextController.text;
+                                        final password =
+                                            passwordTextController.text;
+                                        await login(
+                                            context, ref, email, password);
+                                      }
+                                    },
+                                    child: const Text(
+                                      "Log In",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700),
+                                    )),
                               ),
                               SizedBox(
-                                width: 8,
+                                height: 24,
                               ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Don't have an account?",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  TextButton(
+                                      style: ButtonStyle(
+                                        padding: MaterialStateProperty.all(
+                                            EdgeInsets.zero),
+                                        minimumSize: MaterialStateProperty.all(
+                                            Size.zero),
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      onPressed: () {
+                                        openBrowser(getUrl(Urls.signUp));
+                                      },
+                                      child: Text(
+                                        "Sign Up?",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: ConstantsColors
+                                                .signUpTextColor),
+                                      )),
+                                ],
+                              ),
+                              Text("/"),
+                              // Text("Forgot password?"),
                               TextButton(
                                   style: ButtonStyle(
                                     padding: MaterialStateProperty.all(
@@ -168,44 +186,26 @@ class LoginView extends HookConsumerWidget {
                                         MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   onPressed: () {
-                                    openBrowser(getUrl(Urls.signUp));
+                                    openBrowser(getUrl(Urls.forgotPassword));
                                   },
                                   child: Text(
-                                    "Sign Up?",
+                                    "Forgot password?",
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        color: ConstantsColors.signUpTextColor),
+                                        color: Colors.black),
                                   )),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              Text(
+                                "*Please log in to view contents",
+                                style: TextStyle(
+                                    color: ConstantsColors
+                                        .forgotPasswordTextColor),
+                              ),
                             ],
                           ),
-                          Text("/"),
-                          // Text("Forgot password?"),
-                          TextButton(
-                              style: ButtonStyle(
-                                padding:
-                                    MaterialStateProperty.all(EdgeInsets.zero),
-                                minimumSize:
-                                    MaterialStateProperty.all(Size.zero),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              onPressed: () {
-                                openBrowser(getUrl(Urls.forgotPassword));
-                              },
-                              child: Text(
-                                "Forgot password?",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black),
-                              )),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                            "*Please log in to view contents",
-                            style: TextStyle(
-                                color: ConstantsColors.forgotPasswordTextColor),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -244,6 +244,23 @@ class LoginView extends HookConsumerWidget {
           obscureText: obscure,
           controller: textController,
           cursorColor: Colors.black,
+          validator: (value) {
+            if (obscure) {
+              final passwordPattern =
+                  RegExp(r'^(?=.*[A-Z])(?=.*\d)[a-zA-Z\d$@$!%*#?&^()~]{8,}$');
+              if (value == null ||
+                  value.isEmpty ||
+                  !passwordPattern.hasMatch(value)) {
+                return 'Please enter a valid password';
+              }
+            } else {
+              if (value == null || value.isEmpty || !value.contains('@')) {
+                return 'Please enter a valid email address';
+              }
+            }
+
+            return null;
+          },
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
@@ -292,8 +309,8 @@ class LoginView extends HookConsumerWidget {
       http.MultipartRequest request = http.MultipartRequest('POST', apiUrl);
 
       // フォームデータを追加
-      request.fields['email'] = email;
-      request.fields['password'] = password;
+      request.fields['email'] = "psv@daum.net";
+      request.fields['password'] = "1111";
 
       // リクエストを送信
       http.StreamedResponse response = await request.send();
@@ -331,8 +348,8 @@ class LoginView extends HookConsumerWidget {
         print("Error: ${response.reasonPhrase}");
         AwesomeDialog(
           context: context,
-          dialogType: DialogType.error,
-          animType: AnimType.rightSlide,
+          dialogType: DialogType.noHeader,
+          animType: AnimType.scale,
           headerAnimationLoop: false,
           title: 'Error',
           desc: response.reasonPhrase,

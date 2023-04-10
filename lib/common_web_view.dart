@@ -116,7 +116,7 @@ class CommonWebView extends HookConsumerWidget {
                       if (uri
                           .toString()
                           .contains("https://groupofnations.com")) {
-                        openBrowser(uri.toString());
+                        // openBrowser(uri.toString());
                         return NavigationActionPolicy.CANCEL;
                       }
 
@@ -134,12 +134,12 @@ class CommonWebView extends HookConsumerWidget {
                         if (url == getUrl(Urls.appLogin) ||
                             url == getUrl(Urls.home)) {
                           if (uri.toString() != getUrl(Urls.home)) {
-                            openBrowser(uri.toString());
+                            // openBrowser(uri.toString());
                             return NavigationActionPolicy.CANCEL;
                           }
                         } else {
                           if (!uri.toString().contains(url)) {
-                            openBrowser(uri.toString());
+                            // openBrowser(uri.toString());
                             return NavigationActionPolicy.CANCEL;
                           }
                         }

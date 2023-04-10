@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uniplat/common_web_view.dart';
 import 'package:uniplat/constants/colors.dart';
 import 'package:uniplat/constants/urls.dart';
@@ -49,26 +50,36 @@ class _HomeViewState extends State<HomeView> {
           onTap: _onItemTapped,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon:
-                  Image.asset('assets/images/home.png', width: 24, height: 24),
+              icon: SvgPicture.asset(
+                'assets/svg/home.svg',
+                color: _selectedIndex == 0 ? Colors.blue : Colors.black,
+              ),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon:
-                  Image.asset('assets/images/myLab.png', width: 24, height: 24),
+              icon: SvgPicture.asset(
+                'assets/svg/mylab.svg',
+                color: _selectedIndex == 1 ? Colors.blue : Colors.black,
+              ),
               label: 'Mylab',
             ),
             BottomNavigationBarItem(
-                icon: Image.asset('assets/images/search.png',
-                    width: 24, height: 24),
+                icon: SvgPicture.asset(
+                  'assets/svg/search.svg',
+                  color: _selectedIndex == 2 ? Colors.blue : Colors.black,
+                ),
                 label: 'Saerch'),
             BottomNavigationBarItem(
-                icon: Image.asset('assets/images/upload.png',
-                    width: 24, height: 24),
+                icon: SvgPicture.asset(
+                  'assets/svg/upload.svg',
+                  color: _selectedIndex == 2 ? Colors.blue : Colors.black,
+                ),
                 label: 'Upload'),
             BottomNavigationBarItem(
-                icon: Image.asset('assets/images/news.png',
-                    width: 24, height: 24),
+                icon: SvgPicture.asset(
+                  'assets/svg/news.svg',
+                  color: _selectedIndex == 4 ? Colors.blue : Colors.black,
+                ),
                 label: 'News'),
           ],
           type: BottomNavigationBarType.fixed,
