@@ -5,18 +5,21 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uniplat/constants/colors.dart';
-import 'package:uniplat/login.dart';
+import 'package:uniplat/home_view.dart';
 import 'package:uniplat/open_browser.dart';
 
 import 'constants/urls.dart';
 
 class CommonWebView extends HookConsumerWidget {
   final String url;
-  // final String token;
   bool isBackbuttton = false;
   InAppWebViewController? webViewController;
-
-  CommonWebView({Key? key, required this.url, this.isBackbuttton = false})
+  int index;
+  CommonWebView(
+      {Key? key,
+      required this.url,
+      this.index = -1,
+      this.isBackbuttton = false})
       : super(key: key);
 
   @override
@@ -37,7 +40,6 @@ class CommonWebView extends HookConsumerWidget {
           allowFileAccess: true,
           thirdPartyCookiesEnabled: true,
         ));
-    final token = ref.read(tokenProvider);
 
     /// URI
     return Scaffold(
@@ -81,6 +83,13 @@ class CommonWebView extends HookConsumerWidget {
                             value: cookieValue!);
                       }
                       webViewController = controller;
+
+                      if (ref.read(controllersProvider).length <= index) {
+                        ref
+                            .read(controllersProvider.notifier)
+                            .state
+                            .add(controller);
+                      }
                     },
                     initialOptions: options,
 
@@ -103,8 +112,12 @@ class CommonWebView extends HookConsumerWidget {
                           await cookieManager.getCookies(url: url!);
                       cookies.forEach((cookie) async {
                         // print("========coookies============");
-                        print(cookie.name + " " + cookie.value);
-                        await prefs.setString(cookie.name, cookie.value);
+                        // print(cookie.name + " " + cookie.value);
+                        if (cookie == "SESSION") {
+                          print(cookie.name + " " + cookie.value);
+
+                          await prefs.setString(cookie.name, cookie.value);
+                        }
                       });
                     },
                     shouldOverrideUrlLoading:
@@ -112,13 +125,6 @@ class CommonWebView extends HookConsumerWidget {
                       var uri = navigationAction.request.url!;
                       print(
                           "++++++++++++++++++++++++++shouldOverrideUrlLoading++++++++++++++++++++++++++");
-                      print(uri);
-                      if (uri
-                          .toString()
-                          .contains("https://groupofnations.com")) {
-                        // openBrowser(uri.toString());
-                        return NavigationActionPolicy.CANCEL;
-                      }
 
                       if (uri.toString().contains("metamask")) {
                         if (Platform.isAndroid) {
@@ -130,27 +136,11 @@ class CommonWebView extends HookConsumerWidget {
                         }
                         return NavigationActionPolicy.CANCEL;
                       }
-                      if (uri.toString().contains(baseUrl)) {
-                        if (url == getUrl(Urls.appLogin) ||
-                            url == getUrl(Urls.home)) {
-                          if (uri.toString() != getUrl(Urls.home)) {
-                            // openBrowser(uri.toString());
-                            return NavigationActionPolicy.CANCEL;
-                          }
-                        } else {
-                          if (!uri.toString().contains(url)) {
-                            // openBrowser(uri.toString());
-                            return NavigationActionPolicy.CANCEL;
-                          }
-                        }
-                      }
+
                       return NavigationActionPolicy.ALLOW;
                     },
                     initialUrlRequest: URLRequest(
                       url: Uri.parse(url),
-                      headers: {
-                        'Authorization': 'Bearer $token',
-                      },
                     ),
                   ),
                 )));

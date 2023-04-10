@@ -23,13 +23,40 @@ class LoginView extends HookConsumerWidget {
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
   CookieManager cookieManager = CookieManager.instance();
-
+  String token = "";
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useMemoized(() => GlobalKey<FormState>());
-
     return Stack(
       children: [
+        if (ref.watch(tokenProvider) != "")
+          InAppWebView(
+            initialUrlRequest: URLRequest(
+              url: Uri.parse(getUrl(Urls.appLogin)),
+              headers: {
+                'Authorization': 'Bearer ${ref.watch(tokenProvider)}',
+              },
+            ),
+            onWebViewCreated: (controller) async {},
+            onLoadStop: (InAppWebViewController controller, Uri? url) async {
+              final prefs = await SharedPreferences.getInstance();
+              List<Cookie> cookies = await cookieManager.getCookies(url: url!);
+              cookies.forEach((cookie) async {
+                print(cookie.name + " " + cookie.value);
+
+                await prefs.setString(cookie.name, cookie.value);
+              });
+              print("=======onLoadStop===========");
+              print(url.toString());
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return HomeView();
+                  },
+                ),
+              );
+            },
+          ),
         Scaffold(
           appBar: AppBar(backgroundColor: ConstantsColors.mainColor),
           body: Stack(
@@ -248,11 +275,11 @@ class LoginView extends HookConsumerWidget {
             if (obscure) {
               final passwordPattern =
                   RegExp(r'^(?=.*[A-Z])(?=.*\d)[a-zA-Z\d$@$!%*#?&^()~]{8,}$');
-              if (value == null ||
-                  value.isEmpty ||
-                  !passwordPattern.hasMatch(value)) {
-                return 'Please enter a valid password';
-              }
+              // if (value == null ||
+              //     value.isEmpty ||
+              //     !passwordPattern.hasMatch(value)) {
+              //   return 'Please enter a valid password';
+              // }
             } else {
               if (value == null || value.isEmpty || !value.contains('@')) {
                 return 'Please enter a valid email address';
@@ -309,8 +336,10 @@ class LoginView extends HookConsumerWidget {
       http.MultipartRequest request = http.MultipartRequest('POST', apiUrl);
 
       // フォームデータを追加
-      request.fields['email'] = "psv@daum.net";
-      request.fields['password'] = "1111";
+      // request.fields['email'] = "psv@daum.net";
+      // request.fields['password'] = "1111";
+      request.fields['email'] = email;
+      request.fields['password'] = password;
 
       // リクエストを送信
       http.StreamedResponse response = await request.send();
@@ -332,17 +361,6 @@ class LoginView extends HookConsumerWidget {
         print("Response: $responseBody");
         print("token: ${jsonResponse['token']}");
         ref.read(tokenProvider.notifier).state = jsonResponse['token'];
-
-        print("aa");
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return HomeView(
-                isLogin: false,
-              );
-            },
-          ),
-        );
       } else {
         // エラーが発生した場合、エラーメッセージを表示
         print("Error: ${response.reasonPhrase}");
@@ -363,9 +381,7 @@ class LoginView extends HookConsumerWidget {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
-            return HomeView(
-              isLogin: true,
-            );
+            return HomeView();
           },
         ),
       );

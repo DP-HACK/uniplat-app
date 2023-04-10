@@ -47,13 +47,15 @@ dependencies:
   permission_handler: ^10.2.0
   gradient_like_css: ^1.0.1
   provider: ^6.0.5
-  dio_cookie_manager: ^2.1.3
+  dio_cookie_manager: ^2.0.0
   cookie_jar: ^3.0.1
   shared_preferences: ^2.0.20
   http: ^0.13.3
   awesome_dialog: ^3.0.2
   flutter_hooks: ^0.18.6
   flutter_svg: ^2.0.4
+  dio: ^5.1.1
+  path_provider: ^2.0.14
   # flutter_hooks: ^0.22.0
 
 
